@@ -1,0 +1,83 @@
+import streamlit as st
+import pickle
+import numpy as np
+import pandas as pd
+
+
+#import model
+pipe = pickle.load(open('pipe.pkl','rb'))
+df = pickle.load(open('df.pkl','rb'))
+
+st.title('Laptop Price Prediction')
+
+#brand
+Company = st.selectbox('Brand',df['Company'].unique())
+
+#type of laptop
+TypeName  = st.selectbox('Type',df['TypeName'].unique())
+
+#screensize
+Inches=st.number_input("Screen Size")
+
+#ram
+ram = st.selectbox('RAM(in GB)',[2,4,6,8,12,16,24,32,64])
+
+#OPsys
+OperatingSystem = st.selectbox('OpSys',df["OpSys"].unique())
+
+#Weight
+weight = st.number_input("Weight of laptop in kgs")
+
+#ips
+IPS = st.selectbox("IPS",['Yes','No'])
+
+#touchScreen
+TouchScreen = st.selectbox("Touchscreen",['NO','Yes'])
+
+#ppi
+PPI = st.selectbox("PPI",df['PPI'].unique())
+
+
+#cpu
+cpu = st.selectbox ('Cpu', df['Cpu brand'].unique())
+
+#memoryAmountin mb
+Memory = st.selectbox('memory', df['Memory Amount'].unique())
+
+#memory type
+memType= st.selectbox('Memory Type',df['Memory Type'].unique())
+
+#Gpu
+Gpu = st.selectbox ('Gpu', df['Gpu brand'].unique())
+
+if st.button('Predict price'):
+
+    if TouchScreen=='Yes':
+        TouchScreen=1
+    else:
+        TouchScreen=0
+
+    if IPS=='Yes':
+        IPS=1
+    else:
+        IPS=0
+
+    query = pd.DataFrame([{
+        'Company': Company,
+        'TypeName': TypeName,
+        'Inches': Inches,
+        'Ram': ram,
+        'OpSys': OperatingSystem,
+        'Weight': weight,
+        'IPS': IPS,
+        'TouchScreen': TouchScreen,
+        'PPI': PPI,
+        'Cpu brand': cpu,
+        'Memory Amount': Memory,
+        'Memory Type': memType,
+        'Gpu brand': Gpu
+    }])
+
+    predicted_price = np.exp(pipe.predict(query)[0])
+    st.title(f"Predicted Price: ₹{int(predicted_price)}")
+
